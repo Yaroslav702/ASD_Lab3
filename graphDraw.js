@@ -3,13 +3,14 @@ export default class GraphDraw {
   constructor(canvas, graph, nodeRadius) {
     this.canvas = canvas;
     this.graph = graph;
-    this.nodeRadius = nodeRadius;
+    this.nodeRadius = nodeRadius; // радіус однієї вершини.
     this.nodes = new Array(nodeRadius).fill(0);
     this.context = this.canvas.getContext('2d');
   }
   getDistance(x1, y1, x2, y2) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
   }
+
   drawNode(x, y, color = '#c7c21a', text = '') {
     this.context.beginPath();
     this.context.strokeStyle = 'black';
@@ -65,6 +66,7 @@ export default class GraphDraw {
     this.context.strokeStyle = color;
     this.context.moveTo(x1, y1);
     if (this.graph.isDirected && this.graph.adjacencyMatrix[i][j] === this.graph.adjacencyMatrix[j][i]) {
+      // Якщо напрямлений в обидві сторони - додається куд, щоб звʼязки не зливалися.
       const offset = Math.PI / 8;
       x2 = x2 - this.nodeRadius * Math.cos(angle + offset);
       y2 = y2 - this.nodeRadius * Math.sin(angle + offset);
@@ -106,7 +108,9 @@ export default class GraphDraw {
   drawNodes(amount, distanceFromCenter) {
     let angle = 0;
     let counter = 0;
-    let k = Math.ceil((amount - 3) / 3) + 1;
+    let k = Math.ceil((amount - 3) / 3) + 1; // скільки може бути розміщено на одному ребрі.
+
+    // Використувається для малювання крайніх вершин.
     for (let i = 0; i < 3; i++) {
       const x = this.canvas.width / 2 + distanceFromCenter * Math.cos(angle);
       const y = this.canvas.height / 2 + distanceFromCenter * Math.sin(angle);
@@ -114,19 +118,24 @@ export default class GraphDraw {
       this.drawNode(x, y, 'yellow', i * k);
       angle += (2 * Math.PI) / 3;
     }
-
+    
+    // Використовується для малювання всіх інших елементів.
     for (let i = 1; i <= 3; i++) {
       counter++;
+      
+      // Координати крайніх вершин (проходимось по ребрах)
       let x1 = this.nodes[(i - 1) * k].x;
       let y1 = this.nodes[(i - 1) * k].y;
       let x2 = this.nodes[i * k].x;
       let y2 = this.nodes[i * k].y;
+      // повертаємось до початкового ребра.
       if (i === 3) {
         x2 = this.nodes[0].x;
         y2 = this.nodes[0].y;
       }
       for (let j = 1; j < k; j++) {
         if (counter === amount) return;
+        // знаходимо координати за формулою.
         const x = x1 + (j * (x2 - x1)) / k;
         const y = y1 + (j * (y2 - y1)) / k;
         this.nodes[counter] = { x, y, text: counter };
@@ -137,12 +146,16 @@ export default class GraphDraw {
     console.log(this.nodes);
     this.context.stroke();
   }
+
+  // Main function.
   graphDrawTriangle(distanceFromCenter) {
     this.drawNodes(this.graph.numberNodes, distanceFromCenter);
     const matrix = this.graph.adjacencyMatrix;
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix.length; j++) {
+        // Якщо є звʼязок між вершинами
         if (matrix[i][j] === 1) {
+          // Якщо іде до самого себе
           if (i === j) {
             this.drawLoop(this.nodes[i].x, this.nodes[i].y);
           } else {

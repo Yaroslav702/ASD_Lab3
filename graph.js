@@ -8,6 +8,7 @@ export default class Graph {
       this.adjacencyMatrix[i] = new Array(this.numberNodes).fill(0);
     }
   }
+  // Генерує випадкові числа від 0 до 2
   randm(generator) {
     for (const arr of this.adjacencyMatrix) {
       for (let i = 0; i < arr.length; i++) {
@@ -15,6 +16,7 @@ export default class Graph {
       }
     }
   }
+  // множить на коефіцієнт на k числа в матриці. Округлює до 1 або 0.
   mulmr(k) {
     for (const arr of this.adjacencyMatrix) {
       for (let i = 0; i < arr.length; i++) {
@@ -22,6 +24,7 @@ export default class Graph {
       }
     }
   }
+  // Конвертація напрямленої матриці до ненапрямленої
   toUndirected() {
     const matrix = this.adjacencyMatrix;
     const oldMatrix = [];
@@ -30,7 +33,7 @@ export default class Graph {
     }
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix.length; j++) {
-        if (matrix[i][j] === 1) matrix[j][i] = matrix[i][j];
+        if (matrix[i][j] === 1) matrix[j][i] = matrix[i][j]; // Призначається симетрична вершина, якщо елемент матриці == 1.
       }
     }
     this.isDirected = !this.isDirected;
